@@ -1,0 +1,616 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{ae,aecompl}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage[margin=0.5in]{geometry}
+
+\usepackage[dvips]{hyperref}
+
+\allowdisplaybreaks
+
+\title{Matrix Calculus}
+\author{Massimiliano Tomassoli}
+\date{23/7/2013}
+
+%\setlength{\parindent}{0pt}
+
+\begin{document}
+
+\maketitle
+
+Matrix Calculus is a set of techniques which let us differentiate functions of matrices without computing the single partial derivatives by hand. What this means will be clear in a moment.
+
+\section{The derivative}
+
+Let's talk about notation a little bit.
+If $f(X)$ is a scalar function of an $m\times n$ matrix $X$, then
+$$
+\frac{\partial f(X)}{\partial X} =
+\begin{bmatrix}
+\frac{\partial f(X)}{\partial x_{11}} & \cdots & \frac{\partial f(X)}{\partial x_{1n}} \\
+\vdots & \ddots & \vdots \\
+\frac{\partial f(X)}{\partial x_{m1}} & \cdots & \frac{\partial f(X)}{\partial x_{mn}}
+\end{bmatrix}.
+$$ The definition above is valid even if $m=1$ or $n=1$, that is if $f$ is a function of a row vector, a column vector or a scalar, in which case the result is a row vector, a column vector or a scalar, respectively.
+
+If $f(X)$ is an $m\times n$ matrix function of a matrix, then
+$$
+\frac{\partial f(X)}{\partial X} =
+\begin{bmatrix}
+\frac{\partial f_{11}(X)}{\partial X} & \cdots & \frac{\partial f_{1n}(X)}{\partial X} \\
+\vdots & \ddots & \vdots \\
+\frac{\partial f_{m1}(X)}{\partial X} & \cdots & \frac{\partial f_{mn}(X)}{\partial X}
+\end{bmatrix}
+$$ where the matrix above is a \emph{block matrix}. The definition above is valid even when $m=1$ or $n=1$, that is when $f$ is a row vector function, a column vector function or a scalar function, in which case the block matrix is a row of blocks, a column of blocks or just a single block, respectively.
+
+If $f$ is
+\begin{itemize}
+      \item a \emph{scalar} function of a \emph{scalar}, \emph{vector} or \emph{matrix}, or
+      \item a \emph{vector} function of a \emph{scalar} or \emph{vector}, or
+      \item a \emph{matrix} function of a \emph{scalar},
+\end{itemize}
+then the \emph{derivative}, also called \emph{Jacobian matrix}, of $f$ is
+$$ Df(x) = \frac{\partial f(x)}{\partial x^T}
+$$ For instance, if $f(x)$ is a vector function of a vector, then
+$$
+Df(x) :=\frac{\partial f(x)}{\partial x^T} =
+\begin{bmatrix}
+\frac{\partial f_1(x)}{\partial x^T} \\
+\vdots \\
+\frac{\partial f_m(x)}{\partial x^T}
+\end{bmatrix} =
+\begin{bmatrix}
+\frac{\partial f_1(x)}{\partial x_1} & \cdots & \frac{\partial f_1(x)}{\partial x_n} \\
+\vdots & \ddots & \vdots \\
+\frac{\partial f_m(x)}{\partial x_1} & \cdots & \frac{\partial f_m(x)}{\partial x_n}
+\end{bmatrix}.
+$$ As another example, if $f(X)$ is a scalar function of a matrix, then
+$$
+Df(X) :=\frac{\partial f(X)}{\partial X^T} =
+\begin{bmatrix}
+\frac{\partial f(X)}{\partial x_{11}} & \cdots & \frac{\partial f(X)}{\partial x_{m1}} \\
+\vdots & \ddots & \vdots \\
+\frac{\partial f(X)}{\partial x_{1n}} & \cdots & \frac{\partial f(X)}{\partial x_{mn}}
+\end{bmatrix}.
+$$
+Some authors prefer to find the \emph{gradient} of a function, which is defined as the \emph{transpose} of the Jacobian matrix.
+
+Now, how do we define the derivative of an $m\times n$ matrix function $f$ of a $p\times q$ matrix? It's clear that we have $mnpq$ partial derivatives. We could just define the derivative of $f$ as we did above for the other cases, but we'll follow Magnus's way\cite{ABA05, MAG99} and give the following definition:
+$$
+Df(X) = \frac{\partial \operatorname{vec} f(X)}{\partial(\operatorname{vec} X)^T}
+$$
+The result is an $mn\times pq$ matrix. We'll talk about the \emph{vec} operation in a moment. For now let's just say that it \emph{vectorizes} a matrix by stacking its columns on top of one another. More formally,
+$$
+\operatorname{vec}(A) =
+\begin{bmatrix}
+a_{11} & \cdots & a_{m1} & a_{12} & \cdots & a_{m2} & \cdots\cdots & a_{1n} & \cdots & a_{mn}
+\end{bmatrix}^T
+$$ This means that $\operatorname{vec} f(X)$ is a vector function and $
+\operatorname{vec} X$ is a vector.
+
+So what about a scalar function of a matrix? According to this last definition, the derivative should be a row vector, while according to our first definition of derivative it should be a matrix. Both are viable options and we'll see how easy it is to go from one to the other.
+
+The second derivative in the multidimensional case is the \emph{Hessian matrix} (or just \emph{Hessian}), a square matrix of second-order partial derivatives of a scalar function. More precisely, if $f$ is a scalar function of a vector, then the Hessian is defined as
+$$
+Hf(x) =
+\frac{\partial^2f(x)}{\partial x\partial x^T} =
+\begin{bmatrix}
+\frac{\partial^2f(x)}{\partial x_1^2} & \frac{\partial^2f(x)}{\partial x_1\partial x_2} & \cdots & \frac{\partial^2f(x)}{\partial x_1\partial x_n} \\
+\frac{\partial^2f(x)}{\partial x_2\partial x_1} & \frac{\partial^2f(x)}{\partial x_2^2} & \cdots & \frac{\partial^2f(x)}{\partial x_2\partial x_n} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{\partial^2f(x)}{\partial x_n\partial x_1} & \frac{\partial^2f(x)}{\partial x_n\partial x_2} & \cdots & \frac{\partial^2f(x)}{\partial x_n^2} \\
+\end{bmatrix}
+$$ Note that the Hessian is the Jacobian of the gradient (i.e. the transpose of the Jacobian) of $f$:
+$$ Hf(x) =
+\frac{\partial^2f(x)}{\partial x\partial x^T} =
+\frac{\partial}{\partial x^T}\frac{\partial f(x)}{\partial x} =
+J(\nabla f)(x)
+$$ If $f$ is a scalar function of a matrix (rather than of a vector), we vectorize the matrix:
+$$ Hf(X) = \frac{\partial^2 f(X)}{\partial(\operatorname{vec}X)\partial(\operatorname{vec}X)^T}
+$$ In this article we assume that the second-order partial derivatives are \emph{continuous} so the order of differentiation is irrelevant and the Hessian is always symmetric.
+
+\section{The differential}
+
+The method described here is based on \emph{differentials}, therefore let's recall what a differential is.
+
+In the one-dimensional case, the derivative of $f$ at $x$ is defined as
+$$ \lim_{u\to 0}\frac{f(x+u)-f(x)}{u}=f'(x)
+$$ This can be rewritten as
+$$ f(x+u) = f(x) + f'(x)u + r_x(u)
+$$ where $r_x(u)$ is $o(u)$, i.e. $r_x(u)/u \to 0$ as $u\to 0$. The differential of $f$ at $x$ with increment $u$ is $df(x;u) = f'(x)u$.
+
+In the vector case, we have
+$$ f(x+u) = f(x) + (Df(x))u + r_x(u)
+$$ and the differential of $f$ at $x$ with increment $u$ is $df(x;u) = (Df(x))u$. As we can see, the differential is the best linear approximation of $f(x+u) - f(x)$ at $x$. In practice, we write $dx$ instead of $u$, so, for instance, $df(x;u) = f'(x)dx$. We'll justify this notation in a moment, but first let's introduce the so-called \emph{identification} results. They are needed to get the derivatives from the differentials.
+
+The first result says that, if $f$ is a vector function of a vector,
+$$ df(x) = A(x)dx \iff Df(x) = A(x).
+$$ More generally, if $f$ is a matrix function of a matrix,
+$$ d\operatorname{vec}f(X) = A(X)d\operatorname{vec}X \iff Df(x) = A(X).
+$$
+
+The second result is about the second differential and says that if $f$ is a scalar function of a vector, then
+$$ d^2 f(x) = (dx)^T B(x)dx \iff Hf(x) = \frac{1}{2}(B(x) + B(x)^T)
+$$ where $Hf(x)$ denotes the \emph{Hessian matrix}.
+
+Another important result is \emph{Cauchy's rule of invariance} which says that if $h(x) = g(f(x))$, then
+$$ dh(x;u) = dg(f(x); df(x; u))
+$$ This is related to the \emph{chain rule} for the derivatives; in fact, it can be proved by making use of the chain rule:
+$$
+\begin{align}
+dh(x;u)
+ &= Dh(x)u \\
+ &= D(g\circ f)(x)u \\
+ &= Dg(f(x))Df(x)u \\
+ &= Dg(f(x))df(x;u) \\
+ &= dg(f(x); df(x;u))
+\end{align}
+$$
+
+Now we can justify the abbreviated notation $dx$. If $y = f(x)$, then we write
+$$ dy = df(x; dx)
+$$ where $x$ and $y$ are \emph{variables}. Basically, we name the differential after the variables rather than after the functions. But now suppose that $x = g(t)$ and $dx = dg(t; dt)$. We now have $y = f(g(t)) = h(t)$ and, therefore,
+$$ dy = dh(t; dt).
+$$ For our abbreviated notation to be consistent, it must be the case that $df(x; dx) = dh(t; dt)$. Fortunately, thanks to Cauchy's rule of invariance, we can see that it is so:
+$$ dh(t;dt) = d(f\circ g)(t;dt) = df(g(t);dg(t;dt)) = df(x;dx). $$
+
+\section{Two important operators}
+
+Before proceeding with the actual computation of differentials and derivatives, we need to introduce two important operators: the \emph{Kronecker product} and the \emph{vec} operator. We've already talked a little about the vec operator but here we'll see and prove some useful results for manipulating expressions involving these two operators.
+
+As we said before, the vec operator is defined as follows:
+$$
+\operatorname{vec}(A) =
+\begin{bmatrix}
+a_{11} & \cdots & a_{m1} & a_{12} & \cdots & a_{m2} & \cdots\cdots & a_{1n} & \cdots & a_{mn}
+\end{bmatrix}^T
+$$ For instance,
+$$
+\operatorname{vec}\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6
+\end{bmatrix}
+=
+\begin{bmatrix}
+1&4&2&5&3&6
+\end{bmatrix}^T
+$$
+
+The Kronecker product between two matrix $A$ and $B$ is defined as follows:
+$$
+A\otimes B =
+\begin{bmatrix}
+a_{11}B & \cdots & a_{1n}B \\
+\vdots & \ddots & \vdots \\
+a_{m1}B & \cdots & a_{mn}B
+\end{bmatrix}
+$$ For instance,
+$$
+\begin{bmatrix}
+1 & 2 \\
+3 & 4
+\end{bmatrix}
+\otimes
+\begin{bmatrix}
+1 & 1 \\
+1 & 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+1 & 1 & 2 & 2 \\
+1 & 1 & 2 & 2 \\
+3 & 3 & 4 & 4 \\
+3 & 3 & 4 & 4
+\end{bmatrix}
+$$
+
+Here's a list of properties of the Kronecker product and the vec operator:
+\begin{enumerate}
+    \item $ A\otimes (B\otimes C) = (A\otimes B)\otimes C\quad $ (associativity)
+    \item $ A\otimes (B + C) = (A\otimes B) + (A\otimes C) \\
+       (A + B)\otimes C = (A\otimes C) + (B\otimes C)\quad $ (distributivity)
+    \item $ \forall a\in\mathbb R,\quad a\otimes A = A\otimes a = a A $
+    \item $ \forall a,b\in\mathbb R,\quad a A\otimes b B = a b (A\otimes B) $
+    \item For conforming matrices, $\quad(A\otimes B)(C\otimes D) = A C\otimes B D $
+    \item $ (A\otimes B)^T = A^T\otimes B^T,\quad (A\otimes B)^H = A^H\otimes B^H $
+    \item For all vectors $a$ and $b$, $\quad a^T\otimes b = b a^T = b\otimes a^T $
+    \item $ (A\otimes B)^{-1} = A^{-1}\otimes B^{-1} $
+    \item The vec operator is linear.
+    \item For all vectors $a$ and $b$, $\quad\operatorname{vec}(ab^T) = b\otimes a $
+    \item $ \operatorname{vec}(AXC) = (C^T\otimes A)\operatorname{vec}(X) $
+    \item \label{itm:prop_twelve} $ \operatorname{tr}(AB) = \operatorname{vec}(A^T)^T \operatorname{vec}(B) $
+\end{enumerate}
+
+We'll denote with $\{f(i,j)\}$ the matrix whose generic $(i,j)$ element is $f(i,j)$. Note that if $A$ is a block matrix with blocks $B_{ij}$, then
+$$
+A\otimes C =
+\begin{bmatrix}
+B_{11}\otimes C & \cdots & B_{1n}\otimes C \\
+\vdots & \ddots & \vdots \\
+B_{m1}\otimes C & \cdots & B_{mn}\otimes C
+\end{bmatrix}
+$$
+
+Point $(3)$ follows directly from the definition, while point $(4)$ can be proved as follows:
+$$ xA\otimes yB = \{xa_{ij}(yB)\} = \{xya_{ij}B\} = xy\{a_{ij}B\} = xy(A\otimes B)
+$$ Now let's prove the other points one by one.
+
+\begin{enumerate}
+    \item $A\otimes(B\otimes C) = \{a_{ij}(B\otimes C)\} = \{a_{ij}B\otimes C\} = \{a_{ij}B\}\otimes C = (A\otimes B)\otimes C $
+    \item $A\otimes(B+C) = \{a_{ij}(B+C)\} = \{a_{ij}B + a_{ij}C\} = \{a_{ij}B\} + \{a_{ij}C\} = A\otimes B + A\otimes C$
+    \\ The other case is analogous.
+    \item See above.
+    \item See above.
+    \item $(A\otimes B)(C\otimes D) = \{a_{ij}B\}\{c_{ij}D\} = \{\sum_k a_{ik}B c_{kj}D\} = \{\left(\sum_k a_{ik}c_{kj}\right)BD\} = \{\sum_k a_{ik}c_{kj}\}\otimes BD = AC\otimes BD $
+    \item $(A\otimes B)^T = \{a_{ij}B\}^T = \{a_{ji}B^T\} = A^T\otimes B^T$ \\ The other case is analogous.
+    \item This is very easy.
+    \item By $(5)$, $\quad(A\otimes B)(A^{-1}\otimes B^{-1}) = AA^{-1}\otimes BB^{-1} = I\otimes I = I$
+    \item This is very easy.
+    \item $
+    \operatorname{vec}(ab^T) = \operatorname{vec}
+      \begin{bmatrix}
+      a_1b_1 & \cdots & a_1b_n \\
+      \vdots & \ddots & \vdots \\
+      a_mb_1 & \cdots & a_mb_n
+      \end{bmatrix}
+    = \operatorname{vec}
+      \begin{bmatrix}
+      b_1a & \cdots & b_na
+      \end{bmatrix} =
+      \begin{bmatrix}
+      b_1a \\
+      \vdots \\
+      b_na
+      \end{bmatrix} = b\otimes a
+    $
+    \item Let $x_1,\ldots,x_n$ be the columns of the matrix $X$ and $e_1,\ldots,e_n$ the columns of the identity matrix of order $n$. You should convince yourself that $X = \sum_k x_k e_k^T$. Here we go:
+    $$
+    \begin{align}
+    \operatorname{vec}(AXC) &= \operatorname{vec}\left(A\left(\sum_k x_k e_k^T\right)C\right) \\
+     &= \operatorname{vec}\left(\sum_k(Ax_k)(e_k^T C)\right) \\
+     &= \sum_k\operatorname{vec}((Ax_k)(e_k^T C)) & \qquad\qquad(\text{by (9)}) \\
+     &= \sum_k((e_k^T C)^T\otimes (Ax_k)) & \qquad\qquad(\text{by (10)}) \\
+     &= \sum_k((C^T e_k)\otimes(Ax_k)) \\
+     &= \sum_k((C^T\otimes A)(e_k\otimes x_k)) & \qquad\qquad(\text{by (5)}) \\
+     &= (C^T\otimes A)\sum_k(e_k\otimes x_k) \\
+     &= (C^T\otimes A)\sum_k\operatorname{vec}(x_k e_k^T) & \qquad\qquad(\text{by (10)}) \\
+     &= (C^T\otimes A)\operatorname{vec}\sum_k(x_k e_k^T) & \qquad\qquad(\text{by (9)}) \\
+     &= (C^T\otimes A)\operatorname{vec}(X)
+    \end{align}
+    $$
+    \item The trace of the product $AB$ is just the sum of all the products $a_{ij}b_{ij}$:
+    $$\operatorname{tr}(AB) = \sum_i[AB]_{ii} = \sum_i\sum_k a_{ik}b_{ki} = \sum_i\sum_k[A^T]_{ki}b_{ki} = \operatorname{vec}(A^T)^T\operatorname{vec}(B)$$
+\end{enumerate}
+Since we'll be using the \emph{trace} operator quite a bit, recall that:
+\begin{enumerate}
+    \item $\operatorname{tr}$ is linear.
+    \item $\operatorname{tr}(A) = \operatorname{tr}(A^T)$
+    \item $\operatorname{tr}(AB) = \operatorname{tr}(BA)$
+\end{enumerate}
+The first two properties are trivial (but still very useful). Let's see why the last one is also true:
+$$ \operatorname{tr}(AB) = \sum_i [AB]_{ii} = \sum_i \sum_k a_{ik}b_{ki} = \sum_k\sum_i b_{ki}a_{ik} = \sum_k[BA]_{kk} = \operatorname{tr}(BA)
+$$ Also note that the trace of a scalar is the scalar itself. This means that when we have a scalar function we can add a trace. This simple observation will be very useful.
+
+\section{Basic rules of differentiation}
+
+In order to be able to differentiate expressions, we'll need a set of simple rules:
+
+\begin{enumerate}
+    \item $dA = 0$, $\qquad$ where $A$ is constant
+    \item $d(\alpha X) = \alpha dX$, $\qquad$ where $\alpha$ is a scalar
+    \item $d(X+Y) = dX + dY$
+    \item $d(\operatorname{tr}(X)) = \operatorname{tr}(dX)$
+    \item $d(XY) = (dX)Y + X dY$
+    \item $d(X\otimes Y) = (dX)\otimes Y + X\otimes dY$
+    \item $d(X^{-1}) = -X^{-1} (dX)X^{-1}$
+    \item $d|X| = |X|\operatorname{tr}(X^{-1}dX)$
+    \item $d\log|X| = \operatorname{tr}(X^{-1}dX)$
+    \item \label{itm:diff_ten} $d(X^\star) = (dX)^\star,$ $\qquad$ where $^\star$ is any operator which rearranges elements such as \emph{transpose} and \emph{vec}
+\end{enumerate}
+
+A matrix is really a matrix of scalar functions and the differential of a matrix is the matrix of the differentials of the single scalar functions. More formally, $[dX]_{ij} = d(X_{ij})$. Remember that if $f$ is a scalar function of a vector, then $df(x;u) = \sum_i D_i f(x)u_i$, where the $D_i f(x)$ are the partial derivatives of $f$ at $x$. If $f$ is, instead, a function of a matrix, we just generalize the previous relation: $df(x;u) = \sum_{ij} D_{ij}f(x)u_{ij}$. That said, many of the rules above can be readily proved.
+
+As an example, let's prove the \emph{product rule} (5). Let $f$ and $g$ be two scalar functions of a matrix. Then
+$$
+\begin{align}
+d(fg)(x;u) &= \sum_{i,j} D_{ij}(fg)(x)u_{ij} \\
+ &= \sum_{i,j} ((D_{ij}f(x))g(x) + f(x)D_{ij}g(x))u_{ij} \\
+ &= \sum_{i,j} (D_{ij}f(x))u_{ij} g(x) + \sum_{i,j} f(x)D_{ij}g(x)u_{ij} \\
+ &= df(x;u)g(x) + f(x)dg(x;u)
+\end{align}
+$$ where we used the usual product rule for derivatives. Now we can use this result to prove the general one about matrices of scalar functions:
+$$
+\begin{align}
+[d(XY)]_{ij} &= d[XY]_{ij} \\
+ &= d\left( \sum_k x_{ik}y_{kj} \right) \\
+ &= \sum_k d(x_{ik}y_{kj}) \\
+ &= \sum_k (dx_{ik}y_{kj} + \sum_k x_{ik}dy_{kj} \\
+ &= \sum_k [dX]_{ik} y_{kj} + \sum_k x_{ik}[dY]_{kj} \\
+ &= [(dX)Y]_{ij} + [XdY]_{ij} \\
+ &= [(dX)Y + XdY]_{ij}
+\end{align}
+$$ Now we can prove $(7)$ by using the product rule:
+$$0 = dI = d(XX^{-1}) = (dX)X^{-1} + Xd(X^{-1}) \implies dX^{-1} = -X^{-1}(dX)X^{-1}
+$$ To prove $(8)$ we observe that, for any $i=1,\ldots,n$, we have $|X| = \sum_j x_{ij}C_{ij}$, where $C_{ij}$ is the cofactor of the element $x_{ij}$, i.e. $(-1)^{i+j}$ times the determinant of the matrix obtained by removing from X the $i$-th row and the $j$-th column. Because $C_{ij}$ doesn't depend on $x_{ij}$, then
+$$
+\frac{\partial |X|}{\partial x_{ij}} = \sum_j \frac{\partial x_{ij}C_{ij}}{\partial x_{ij}} = C_{ij}.
+$$ Now note that $C$ is the matrix of the cofactors and recall that $X^{-1} = \frac{1}{|X|}C^T$ and thus $C^T = |X|X^{-1}$. This last result will be used in the following derivation:
+$$d|X| = d|\cdot|(X;dX) = \sum_{i,j}C_{ij}[dX]_{ij} = \sum_{i,j}[C^T]_{ji}[dX]_{ij} = \sum_j[C^TdX]_{jj} = \operatorname{tr}(C^TdX) = |X|\operatorname{tr}(X^{-1}dX)
+$$ Note that $(9)$ follows directly from $(8)$.
+
+\section{The special form $\operatorname{tr}(AdX)$}
+
+At the beginning of this article we gave two definitions of the derivative of a scalar function of a matrix. The first is
+$$ Df(X) = \frac{\partial f(X)}{\partial X^T}
+$$ and the second is
+$$ Df(X) = \frac{\partial f(X)}{\partial (\operatorname{vec}X)^T}.
+$$ In the first case the result is a matrix whereas in the second the result is a row vector. Magnus suggests to use the second definition, but we'll opt for the first one.
+
+Let's consider the differential $\operatorname{tr}(AdX)$. We can find the derivative according to the second definition above by using property \eqref{itm:prop_twelve} in the section ``Two important operators''. We'll also use rule of differentiation \eqref{itm:diff_ten} with $^\star = \operatorname{vec}$. We get
+$$
+\operatorname{tr}(AdX) = \operatorname{vec}(A^T)^T\operatorname{vec}dX = \operatorname{vec}(A^T)^T d\operatorname{vec}X
+$$ and, therefore,
+$$ \frac{\partial \operatorname{tr}(AdX)}{\partial (\operatorname{vec}X)^T} = \operatorname{vec}(A^T)^T
+$$ To get the result in matrix form (first definition) we need to \emph{unvectorize} the result above. We'll proceed step by step:
+$$ \frac{\partial \operatorname{tr}(AdX)}{\partial (\operatorname{vec}X)^T} = \operatorname{vec}(A^T)^T \implies
+\frac{\partial \operatorname{tr}(AdX)}{\partial \operatorname{vec}X} = \operatorname{vec}(A^T) \implies
+\frac{\partial \operatorname{tr}(AdX)}{\partial X} = A^T \implies
+\frac{\partial \operatorname{tr}(AdX)}{\partial X^T} = A.
+$$ So, the result is simply $A$. As we saw in the previous section,
+$$ d|X| = |X|\operatorname{tr}(X^{-1}dX) = \operatorname{tr}(|X|X^{-1}dX).
+$$ This means that the derivative is $|X|X^{-1} = C^T$ which agree with the result
+$$ \frac{\partial|X|}{\partial x_{ij}} = C_{ij}
+$$ that we derived in the previous section.
+
+\section{Examples}
+
+In practice, the derivative of an expression involving matrices can be computed by using the rules of differentiation to get a result of the form $\phi(X)dX$, $\operatorname{tr}(\phi(X)dX)$ or $\phi(X)d\operatorname{vec}X$. After having done that, we can read off the derivative which is simply $\phi(X)$.
+
+To find the Hessian we must differentiate a second time, that is we must differentiate $f(x)$ and find $df(x;dx)$, and then differentiate $df(x;dx)$ itself by keeping in mind that $dx$ is a constant increment and thus, for instance, $d(a^Tdx) = 0$ and $d(x^TAdx) = dx^TAdx$.
+
+According to the second identification result, we must get a result of the form $dx^T\phi(x)dx$ or of the form $(d\operatorname{vec}X)^T\phi(X)d\operatorname{vec}X$ and the Hessian is $\frac{1}{2}(\phi(x)+\phi(x)^T)$. Note that if $\phi(x)$ is symmetric then the Hessian is just $\phi(x)$.
+
+From time to time we'll need to use the \emph{commutation matrix} $K_{mn}$, which is the permutation matrix satisfying
+$$ K_{mn}\operatorname{vec}X = \operatorname{vec}(X^T)
+$$ where $X$ is $m\times n$. It can be shown that
+$$ K_{mn}^T = K_{mn}^{-1} = K_{nm}
+$$ In particular, $K_{nn} = K_n$ is symmetric. Another useful fact is the following. If $A$ is an $m\times n$ matrix, $B$ a $p\times q$ matrix and $X$ a $q\times n$ matrix, then
+$$ (B\otimes A)K_{qn} = K_{pm}(A\otimes B)
+$$ Let's prove that:
+$$
+\begin{align}
+K_{pm}(A\otimes B)\operatorname{vec}X
+  &= K_{pm}\operatorname{vec}(BXA^T) \\
+  &= \operatorname{vec}((BXA^T)^T) \\
+  &= \operatorname{vec}(AX^TB^T) \\
+  &= (B\otimes A)\operatorname{vec}(X^T) \\
+  &= (B\otimes A)K_{qn}\operatorname{vec}X
+\end{align}
+$$ which is true for all $\operatorname{vec}X\in\mathbb{R}^{qn\times 1}$ and hence the proof is complete.
+
+In this section we'll see some examples of computation of the derivative, of the Hessian, and then an example of \emph{maximum likelihood} estimation with a multivariate Gaussian distribution,
+
+Matrices will be written in uppercase and vectors in lowercase.
+
+Let's get started!
+$$
+\begin{alignat}{2}
+f(x) &= a^Tx & \qquad d(a^Tx) &= a^Tdx \\
+  & & &\implies Df(x) = a^T \\
+\\
+f(x) &= x^TAx & \qquad d(x^TAx) &= d(x^T)Ax + x^Td(Ax) \\
+  & & &= (dx)^TAx + x^TAdx \\
+  & & &= x^TA^Tdx + x^TAdx \\
+  & & &= x^T(A^T+A)dx \\
+  & & &\implies Df(x) = x^T(A^T+A) \\
+\\
+f(X) &= a^TXb & \qquad d(a^TXb) &= d\operatorname{tr}(a^TXb) \\
+  & & &= \operatorname{tr}(a^Td(X)b) \\
+  & & &= \operatorname{tr}(ba^TdX) \\
+  & & &\implies Df(X) = ba^T \\
+\\
+f(X) &= a^TXX^Ta & \qquad d(a^TXX^Ta) &= \operatorname{tr}(a^Td(XX^T)a) \\
+  & & &= \operatorname{tr}(aa^Td(XX^T)) \\
+  & & &= \operatorname{tr}(aa^T((dX)X^T+XdX^T)) \\
+  & & &= \operatorname{tr}(aa^T(dX)X^T) + \operatorname{tr}((dX)X^Taa^T) \\
+  & & &= \operatorname{tr}(X^Taa^TdX) + \operatorname{tr}(X^Taa^TdX) \\
+  & & &= 2\operatorname{tr}(X^Taa^TdX) \\
+  & & &\implies Df(X) = 2X^Taa^T \\
+\\
+f(X) &= \operatorname{tr}(AX^TBXC) & \qquad d\operatorname{tr}(AX^TBXC) &= \operatorname{tr}(Ad(X^T)BXC) + \operatorname{tr}(AX^TB(dX)C) \\
+  & & &= \operatorname{tr}(C^TX^TB^T(dX)A^T) + \operatorname{tr}(CAX^TBdX) \\
+  & & &= \operatorname{tr}((A^TC^TX^TB^T + CAX^TB)dX) \\
+  & & &\implies Df(X) = A^TC^TX^TB^T + CAX^TB \\
+\\
+f(X) &= \operatorname{tr}(AX^{-1}B) & \qquad d\operatorname{tr}(AX^{-1}B) &= \operatorname{tr}(BAd(X^{-1})) \\
+  & & &= -\operatorname{tr}(BAX^{-1}(dX)X^{-1}) \\
+  & & &= -\operatorname{tr}(X^{-1}BAX^{-1}dX) \\
+  & & &\implies Df(X) = -X^{-1}BAX^{-1} \\
+\\
+f(X) &= |X^TX| & \qquad d|X^TX| &= |X^TX|\operatorname{tr}((X^TX)^{-1}d(X^TX)) \\
+  & & &= |X^TX|\operatorname{tr}((X^TX)^{-1}(d(X^T)X + X^TdX)) \\
+  & & &= |X^TX|\left[\operatorname{tr}((X^TX)^{-1}d(X^T)X) + \operatorname{tr}((X^TX)^{-1}X^TdX)\right] \\
+  & & &= |X^TX|\left[\operatorname{tr}(X^T(dX)(X^TX)^{-1}) + \operatorname{tr}((X^TX)^{-1}X^TdX)\right] \\
+  & & &= 2|X^TX|\operatorname{tr}((X^TX)^{-1}X^TdX) \\
+  & & &\implies Df(X) = 2|X^TX|(X^TX)^{-1}X^T \\
+\end{alignat} $$
+$$\begin{alignat}{2}
+f(X) &= \operatorname{tr}(X^p) & \qquad d\operatorname{tr}(X^p) &= \operatorname{tr}((dX)X^{p-1} + X(dX)X^{p-2} + \cdots + X^{p-1}dX) \\
+  & & &= \operatorname{tr}(X^{p-1}dX + X^{p-1}dX + \cdots + X^{p-1}dX) \\
+  & & &= p\operatorname{tr}(X^{p-1}dX) \\
+  & & &\implies Df(X) = pX^{p-1} \\
+\\
+f(X) &= Xa & \qquad d(Xa) &= (dX)a\\
+  & & &= \operatorname{vec}((dX)a) \qquad\qquad\text{(the vec of a vector is the vector itself)} \\
+  & & &= \operatorname{vec}(I_n(dX)a) \\
+  & & &= (a^T\otimes I_n)d\operatorname{vec}X \\
+  & & &\implies Df(X) = a^T\otimes I_n
+\end{alignat}
+$$ To differentiate a matrix we need to vectorize it:
+$$
+\begin{alignat}{2}
+f(x) &= xx^T & \qquad\qquad\qquad\qquad\qquad\qquad d\operatorname{vec}(xx^T) &= \operatorname{vec}((dx)x^T+xdx^T) \\
+  & & &= \operatorname{vec}(I_n(dx)x^T) + \operatorname{vec}(x(dx)^TI_n) \\
+  & & &= (x\otimes I_n)d\operatorname{vec}x + (I_n\otimes x)d\operatorname{vec}(x^T) \\
+  & & &= (x\otimes I_n)d\operatorname{vec}x + (I_n\otimes x)d\operatorname{vec}x \\
+  & & &\implies Df(x) = x\otimes I_n + I_n\otimes x \\
+\\
+f(X) &= X^2 & \qquad d\operatorname{vec}(X^2) &= \operatorname{vec}((dX)X + XdX) \\
+  & & &= \operatorname{vec}(I_n(dX)X + X(dX)I_n) \\
+  & & &= (X^T\otimes I_n + I_n\otimes X)d\operatorname{vec}X \\
+  & & &\implies Df(X) = X^T\otimes I_n + I_n\otimes X
+\end{alignat}
+$$
+
+Now let's compute some Hessians.
+$$
+\begin{alignat}{2}
+f(x) &= a^Tx & \qquad d(a^Tx) &= a^Tdx \\
+  & & \qquad d(a^Tdx) &= 0 \\
+  & & &\implies Hf(x) = 0 \\
+\\
+f(X) &= \operatorname{tr}(AXB) & \qquad d\operatorname{tr}(AXB) &= \operatorname{tr}(a(dX)B) \\
+  & & &= \operatorname{tr}(BAdX) \\
+  & & \qquad d\operatorname{tr}(BAdX) &= 0 \\
+  & & &\implies Hf(x) = 0 \\
+\\
+f(x) &= x^TAx & \qquad d(x^TAx) &= dx^TAx + x^TAdx \\
+  & & &= x^TA^Tdx + x^TAdx \\
+  & & &= x^T(A^T+A)dx \\
+  & & \qquad d(x^T(A^T+A)dx) &= dx^T(A^T+A)dx \\
+  & & &\implies Hf(x) = A^T + A \\
+\end{alignat} $$
+$$\begin{alignat}{2}
+f(X) &= \operatorname{tr}(X^TX) & \qquad d\operatorname{tr}(X^TX) &= \operatorname{tr}(dX^TX + X^TdX) \\
+  & & &= \operatorname{tr}(X^TdX + X^TdX) \\
+  & & &= 2\operatorname{tr}(X^TdX) \\
+  & & \qquad d(2\operatorname{tr}(X^TdX)) &= 2\operatorname{tr}(dX^TdX) \\
+  & & &= 2(d\operatorname{vec}X)^Td\operatorname{vec}X \\
+  & & &\implies Hf(X) = 2I_{mn}\qquad\qquad (X\text{ is }m\times n) \\
+\\
+f(X) &= \operatorname{tr}(AX^TBX) & \qquad d\operatorname{tr}(AX^TBX) &= \operatorname{tr}(AdX^TBX+AX^TBdX) \\
+  & & &= \operatorname{tr}(X^TB^TdXA^T + AX^TBdX) \\
+  & & &= \operatorname{tr}(A^TX^TB^TdX + AX^TBdX) \\
+  & & \qquad d(\operatorname{tr}(A^TX^TB^TdX + AX^TBdX)) &= \operatorname{tr}(A^TdX^TB^TdX+AdX^TBdX) \\
+  & & &= \operatorname{tr}(dX^TBdXA + AdX^TBdX) \\
+  & & &= 2\operatorname{tr}(AdX^TBdX) \\
+  & & &= 2\operatorname{tr}(dX^TB(dX)A) \\
+  & & &= 2(d\operatorname{vec}X)^T\operatorname{vec}(B(dX)A) \\
+  & & &= 2(d\operatorname{vec}X)^T(A^T\otimes B)d\operatorname{vec}X \\
+  & & &\implies Hf(X) = \frac{1}{2}(2A^T\otimes B + 2A\otimes B^T) \\
+  & & &\implies Hf(X) = A^T\otimes B + A\otimes B^T
+\end{alignat}
+$$ Here we'll make use of the commutation matrix $K_{mn}$. Remember that $K_{nn} = K_n$ is symmetric.
+$$
+\begin{alignat}{2}
+f(X) &= \operatorname{tr}(X^2) & \qquad d\operatorname{tr}(X^2) &= \operatorname{tr}((dX)X+XdX) \qquad\qquad (X\text{ is }n\times n) \\
+  & & &= 2\operatorname{tr}(XdX) \\
+  & & \qquad d(2\operatorname{tr}(XdX)) &= 2\operatorname{tr}(dXdX) \\
+  & & &= 2(\operatorname{vec}(dX^T))^Td\operatorname{vec}X \\
+  & & &= 2(K_n\operatorname{vec}(dX))^Td\operatorname{vec}X \\
+  & & &= 2(d\operatorname{vec}X)^TK_n d\operatorname{vec}X \\
+  & & &\implies Hf(X) = 2K_n \\
+\\
+f(X) &= \operatorname{tr}(AXBX) & \qquad d\operatorname{tr}(AXBX) &= \operatorname{tr}(A(dX)BX + AXBdX) \qquad\qquad (X\text{ is }m\times n) \\
+  & & &= \operatorname{tr}(BXAdX+AXBdX) \\
+  & & \qquad d\operatorname{tr}(BXAdX+AXBdX) &= \operatorname{tr}(B(dX)AdX + A(dX)BdX) \\
+  & & &= 2\operatorname{tr}(A(dX)BdX) \\
+  & & &= 2\operatorname{tr}((dX)B(dX)A) \\
+  & & &= 2(\operatorname{vec}(dX^T))^T\operatorname{vec}(B(dX)A) \\
+  & & &= 2(\operatorname{vec}(dX^T))^T(A^T\otimes B)d\operatorname{vec}X \\
+  & & &= 2(K_{mn}\operatorname{vec}(dX))^T(A^T\otimes B)d\operatorname{vec}X \\
+  & & &= 2(d\operatorname{vec}X)^T K_{nm}(A^T\otimes B)d\operatorname{vec}X \\
+  & & &\implies Hf(X) = K_{nm}(A^T\otimes B) + (A\otimes B^T)K_{mn} \\
+  & & &\implies Hf(X) = K_{nm}(A^T\otimes B + B^T\otimes A)
+\end{alignat}
+$$ In the last step above we used the fact that $(A\otimes B^T)K_{mn} = K_{nm}(B^T\otimes A)$.
+$$
+\begin{alignat}{2}
+f(X) &= a^TXX^Ta & \qquad d(a^TXX^Ta) &= a^T(dX)X^Ta + a^TX(dX)^Ta \\
+  & & &= a^T(dX)X^Ta + a^T(dX)X^Ta \\
+  & & &= 2a^T(dX)X^Ta \\
+  & & \qquad d(2a^T(dX)X^Ta) &= 2a^T(dX)(dX)^Ta \\
+  & & &= 2\operatorname{tr}(a^T(dX)(dX)^Ta) \\
+  & & &= 2\operatorname{tr}((dX)^Taa^TdX) \\
+  & & &= 2(d\operatorname{vec}X)^T\operatorname{vec}(aa^TdX) \\
+  & & &= 2(d\operatorname{vec}X)^T\operatorname{vec}(aa^T(dX)I) \\
+  & & &= 2(d\operatorname{vec}X)^T(I\otimes aa^T)d\operatorname{vec}X \\
+  & & &\implies Hf(X) = 2(I\otimes aa^T) \\
+\\
+f(X) &= \operatorname{tr}(X^{-1}) & \qquad d\operatorname{tr}(X^{-1}) &= \operatorname{tr}(d(X^{-1})) \\
+  & & &= -\operatorname{tr}(X^{-1}(dX)X^{-1}) \\
+  & & d(-\operatorname{tr}(X^{-1}(dX)X^{-1})) &= -\operatorname{tr}(d(X^{-1})(dX)X^{-1} + X^{-1}(dX)d(X^{-1})) \\
+  & & &= -\operatorname{tr}(-X^{-1}(dX)X^{-1}(dX)X^{-1} - X^{-1}(dX)X^{-1}(dX)X^{-1}) \\
+  & & &= 2\operatorname{tr}((dX)X^{-1}(dX)X^{-2}) \\
+  & & &= 2(\operatorname{vec}(dX^T))^T\operatorname{vec}(X^{-1}(dX)X^{-2}) \\
+  & & &= 2(K_n\operatorname{vec}(dX))^T\operatorname{vec}(X^{-1}(dX)X^{-2}) \\
+  & & &= 2(d\operatorname{vec}X)^TK_n(X^{-2T}\otimes X^{-1})d\operatorname{vec}X \\
+  & & &\implies Hf(X) = K_n(X^{-2T}\otimes X^{-1}) + (X^{-2}\otimes X^{-T})K_n \\
+  & & &\implies Hf(X) = K_n(X^{-2T}\otimes X^{-1} + X^{-T}\otimes X^{-2}) \\
+\end{alignat} $$
+$$\begin{alignat}{2}
+f(X) &= |X| & \qquad d|X| &= |X|\operatorname{tr}(X^{-1}dX) \\
+  & & \quad d(|X|\operatorname{tr}(X^{-1}dX)) &= d|X|\operatorname{tr}(X^{-1}dX) + |X|\operatorname{tr}(d(X^{-1})dX) \\
+  & & &= |X|(\operatorname{tr}(X^{-1}dX))^2 - |X|\operatorname{tr}(X^{-1}(dX)X^{-1}dX) \\
+  & & &= |X|\operatorname{tr}((dX)^TX^{-T})\operatorname{tr}(X^{-1}dX) - |X|\operatorname{tr}((dX)X^{-1}(dX)X^{-1}) \\
+  & & &= |X|(d\operatorname{vec}X)^T\operatorname{vec}(X^{-T})(\operatorname{vec}(X^{-T}))^Td\operatorname{vec}X \\
+  & & & \phantom{=.} -|X|(\operatorname{vec}(dX^T))^T(X^{-T}\otimes X^{-1})d\operatorname{vec}X \\
+  & & &= |X|(d\operatorname{vec}X)^T\left(\operatorname{vec}(X^{-T})(\operatorname{vec}(X^{-T}))^T - K_n(X^{-T}\otimes X^{-1}) \right)d\operatorname{vec}X \\
+  & & &\implies Hf(X) = |X|\left(\operatorname{vec}(X^{-T})(\operatorname{vec}(X^{-T}))^T - K_n(X^{-T}\otimes X^{-1})\right)
+\end{alignat}
+$$ Note that the Hessian above (like all the others) is symmetric; in fact,
+$$ (K_n(X^{-T}\otimes X^{-1}))^T = (X^{-1}\otimes X^{-T})K_n = K_n(X^{-T}\otimes X^{-1}) $$
+
+We conclude this section with an example about MLE.
+
+Given a set of vectors $x_1,\ldots,x_N$ drawn independently from a multivariate Gaussian distribution, we want to estimate the parameters of the distribution by maximum likelihood. Note that the covariance matrix $\Sigma$, and thus $\Sigma^{-1}$, is symmetric. The log likelihood function is
+$$ \ln p(x_1,\ldots,x_N|\mu,\Sigma) = -\frac{ND}{2}\ln(2\pi) - \frac{N}{2}\ln|\Sigma|-\frac{1}{2}\sum_{n=1}^N(x_n-\mu)^T\Sigma^{-1}(x_n-\mu).
+$$ We first find the derivative with respect to $\mu$:
+$$
+\begin{align}
+d\left(-\frac{1}{2}\sum_{i=1}^N (x_n-\mu)^T\Sigma^{-1}(x_n-\mu)\right)
+  &= -\frac{1}{2}\sum_{i=1}^N \left( d(x_n-\mu)^T\Sigma^{-1}(x_n-\mu) + (x_n - \mu)^T\Sigma^{-1}d(x_n-\mu)\right) \\
+  &= -\frac{1}{2}\sum_{i=1}^N \left( -d\mu^T\Sigma^{-1}(x_n-\mu) - (x_n-\mu)^T\Sigma^{-1}d\mu \right) \\
+  &= \frac{1}{2}\sum_{i=1}^N \left( (x_n-\mu)^T\Sigma^{-1}d\mu + (x_n-\mu)^T\Sigma^{-1}d\mu \right) \\
+  &= \left( \sum_{i=1}^N(x_n-\mu)^T\Sigma^{-1} \right)d\mu \\
+  &\implies \frac{\partial\ln p}{\partial\mu^T} = \sum_{i=1}^N(x_n-\mu)^T\Sigma^{-1}
+\end{align}
+$$ Therefore,
+$$ \sum_{i=1}^N(x_n-\mu)^T\Sigma^{-1} = 0 \iff \sum_{n=1}^N x_n^T = N\mu^T \iff \hat\mu = \frac{1}{N}\sum_{i=1}^N x_n
+$$ Finally, we find the derivative with respect to $\Sigma$:
+$$
+\begin{align}
+d \left( -\frac{N}{2}\ln|\Sigma|-\frac{1}{2}\sum_{i=1}^N(x_n-\mu)^T\Sigma^{-1}(x_n-\mu) \right)
+  &= -\frac{N}{2}\operatorname{tr}(\Sigma^{-1}d\Sigma) -\frac{1}{2}\sum_{n=1}^N\operatorname{tr}\left( (x_n-\mu)^Td(\Sigma^{-1})(x_n-\mu)\right) \\
+  &= -\frac{N}{2}\operatorname{tr}(\Sigma^{-1}d\Sigma) + \frac{1}{2}\sum_{n=1}^N\operatorname{tr}\left( (x_n-\mu)^T \Sigma^{-1}(d\Sigma)\Sigma^{-1}(x_n-\mu)\right) \\
+  &= -\frac{N}{2}\operatorname{tr}(\Sigma^{-1}d\Sigma) + \frac{1}{2}\sum_{n=1}^N\operatorname{tr}\left( \Sigma^{-1}(x_n-\mu)(x_n-\mu)^T \Sigma^{-1}d\Sigma\right) \\
+  &\implies \frac{\partial\ln p}{\partial\Sigma^T} = -\frac{N}{2}\Sigma^{-1} + \frac{1}{2}\sum_{i=1}^N\Sigma^{-1}(x_n-\mu)(x_n-\mu)^T\Sigma^{-1}
+\end{align}
+$$ Therefore,
+$$
+\begin{align}
+-\frac{N}{2}\Sigma^{-1} + \frac{1}{2}\sum_{i=1}^N\Sigma^{-1}(x_n-\mu)(x_n-\mu)^T\Sigma^{-1} = 0
+  &\iff \frac{N}{2}\Sigma^{-1} = \frac{1}{2}\sum_{i=1}^N\Sigma^{-1}(x_n-\mu)(x_n-\mu)^T\Sigma^{-1} \\
+  &\iff N = \Sigma^{-1}\sum_{i=1}^N(x_n-\mu)(x_n-\mu)^T \\
+  &\iff \hat\Sigma = \frac{1}{N}\sum_{i=1}^N(x_n-\hat\mu)(x_n-\hat\mu)^T
+\end{align}
+$$
+
+\begin{thebibliography}{1}
+\bibitem{ABA05} Abadir, K. M., \& Magnus, J. R. (2005). \emph{Matrix algebra}. Cambridge, UK: Cambridge University Press.
+
+\bibitem{MAG99} Magnus, J. R. \& Neudecker, H. (1999). \emph{Matrix differential calculus with applications in statistics and economics}. New York, NY: John Wiley \& Sons
+
+\bibitem{NYD12} \href{http://www.tc.umn.edu/~nydic001/docs/unpubs/Magnus_Matrix_Differentials_Presentation.pdf}{Steven W. Nydick (2012). \emph{A Different(ial) Way: Matrix Derivatives Again}.}
+
+\bibitem{MIN00} \href{http://research.microsoft.com/en-us/um/people/minka/papers/matrix/minka-matrix.pdf}{Thomas Minka (2000). \emph{Old and New Matrix Algebra Useful for Statistics}.}
+\end{thebibliography}
+
+\end{document}
